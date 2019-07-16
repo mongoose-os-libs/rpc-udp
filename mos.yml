@@ -1,0 +1,24 @@
+author: mongoose-os
+description: Implements Mongoose OS RPC over UDP
+type: lib
+version: 1.0
+
+sources:
+  - src
+includes:
+  - include
+config_schema:
+  - ["rpc.udp", "o", {title: "RPC-over-UDP settings"}]
+  - ["rpc.udp.listen_addr", "s", "", {title: "Address/port ot listen on for incoming frames; must be udp://"}]
+  - ["rpc.udp.dst_addr", "s", "", {title: "Destination network address for outgoing frames"}]
+  - ["rpc.udp.dst", "s", "*", {title: "Destination ID reachable via this channel; '*' for default"}]
+
+libs:
+  - origin: https://github.com/mongoose-os-libs/rpc-common
+
+tags:
+  - c
+  - rpc
+  - docs:rpc:RPC over UDP
+
+manifest_version: 2017-09-29
