@@ -24,8 +24,8 @@
 #include "mongoose.h"
 
 struct mg_rpc_ch_udp_out_data {
+  struct mg_str dst_addr;
   struct mg_connection *nc;
-  bool is_open;
 };
 
 static void mg_rpc_ch_udp_out_ch_connect(struct mg_rpc_channel *ch) {
@@ -55,6 +55,7 @@ static void mg_rpc_ch_udp_out_ch_close(struct mg_rpc_channel *ch) {
 static void mg_rpc_ch_udp_out_ch_destroy(struct mg_rpc_channel *ch) {
   struct mg_rpc_ch_udp_out_data *chd =
       (struct mg_rpc_ch_udp_out_data *) ch->channel_data;
+  mg_strfree(&chd->dst_addr);
   free(chd);
   free(ch);
 }
@@ -97,7 +98,6 @@ static void mg_rpc_ch_udp_out_ev(struct mg_connection *nc, int ev,
     case MG_EV_CONNECT: {
       if (*((int *) ev_data) == 0) {
         ch->ev_handler(ch, MG_RPC_CHANNEL_OPEN, NULL);
-        chd->is_open = true;
       } else {
         ch->ev_handler(ch, MG_RPC_CHANNEL_CLOSED, NULL);
       }
@@ -119,6 +119,7 @@ static void mg_rpc_ch_udp_out_ev(struct mg_connection *nc, int ev,
       nc->user_data = NULL;
       chd->nc = NULL;
       ch->ev_handler(ch, MG_RPC_CHANNEL_CLOSED, NULL);
+      chd->nc = mg_connect(mgos_get_mgr(), chd->dst_addr.p, mg_rpc_ch_udp_out_ev, ch);
       break;
     }
   }
@@ -144,6 +145,7 @@ struct mg_rpc_channel *mg_rpc_ch_udp_out(const char *dst_addr) {
   chd = (struct mg_rpc_ch_udp_out_data *) calloc(1, sizeof(*chd));
   if (chd == NULL) goto out;
   chd->nc = nc;
+  chd->dst_addr = mg_strdup_nul(mg_mk_str(dst_addr));
   ch = (struct mg_rpc_channel *) calloc(1, sizeof(*ch));
   if (ch == NULL) goto out;
   nc->user_data = ch;
