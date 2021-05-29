@@ -14,7 +14,7 @@ config_schema:
   - ["rpc.udp.dst", "s", "*", {title: "Destination ID reachable via this channel; '*' for default"}]
 
 libs:
-  - origin: https://github.com/mongoose-os-libs/rpc-common
+  - location: https://github.com/mongoose-os-libs/rpc-common
 
 tags:
   - c
